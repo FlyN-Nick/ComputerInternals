@@ -1,4 +1,4 @@
- import numpy
+import numpy
 
 # variables to check if inputs are within the limits 
 rgst_min = 0
@@ -72,6 +72,7 @@ zero_padding = { # the amount of zeros that needed to be added after the line wh
 errors = [] # this stores information about all the errors that occurs
 
 usingTextFile = False # whether or not the input and output is a text file
+# to change this value to positive you input "text edit"
 
 anyErrors = False # whether or not there were any errors
 
@@ -179,11 +180,13 @@ if __name__ == '__main__': # the beginning of the actual code
   else:
     code = input()
   if code == "text file":
-    code = open("input.txt", "r")
+    code = (open("input.txt", "r")).read()
     usingTextFile = True
   sep_code = code.splitlines()
   assembledCode = []
   lineNum = 0
+  if (code == ""):
+    assembledCode.append("Error: the input was empty")
 
   for line in sep_code:
     lineNum = lineNum + 1
@@ -253,9 +256,14 @@ if __name__ == '__main__': # the beginning of the actual code
   if usingTextFile:
     output = open("output.txt", "w+")
     output.write("\nOutput: {}".format(assembledCode))
+    output.close()
+    input = open("input.txt", "w+")
+    input.write("")
+    input.close()
   else:
     output = open("output.txt", "w+")
     output.write("")
+    output.close()
   if testing:
     expected_array = []
     for value in test_cases.values():
