@@ -1,0 +1,5 @@
+Ram 0 & 1 expected value 1 (decimal). 
+
+This tests makes use of all my CPU's commands. 
+
+I use the jump command to make it stay forever at the last line of code, so don't worry if it does that.
