@@ -246,7 +246,7 @@ if __name__ == "__main__":
         expected_array = list(test_cases.values())
         print("Expctd: {}".format(expected_array))
         if expected_array == assembled_code:
-            print("\nTest Results: Assembler working properly ☺️")
+            print("\nTest Results: Assembler working properly 😊")
         else:
             print("\nTest Results: Assembler working improperly 🫠")
 
