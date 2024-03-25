@@ -37,8 +37,8 @@ RM_ADR_MIN = 0
 RM_ADR_MAX = 2**8 - 1
 LN_MIN = 0
 LN_MAX = 2**16 - 1
-INTGR_MIN = -(2**16)
-INTGR_MAX = 2**16 - 1
+INTGR_MIN = -(2**15)
+INTGR_MAX = 2**15 - 1
 
 # binary representations of each assembly operation
 casm_to_bnry = {
@@ -183,8 +183,12 @@ if __name__ == "__main__":
     for line in assembly_code:
         line_num += 1
         inputs = line.split()
-        operation = inputs[0]
-        inputs.pop(0)
+
+        try:
+            operation = inputs.pop(0)
+        except IndexError:
+            assembled_code.append(error("", line_num, "no operation"))
+            continue
 
         try:
             operation = Operations(operation)
@@ -207,7 +211,8 @@ if __name__ == "__main__":
             if input_type == Inputs.RG:
                 binary += f'{int(input[2:]):04b}' if checkAddress(input, Inputs.RG) else error(input, line_num, "invalid register address")
             elif input_type == Inputs.INTGR:
-                binary += f'{int(input):016b}' if numberValidity(input) else error(input, line_num, "invalid number")
+                # https://stackoverflow.com/questions/63274885/converting-an-integer-to-signed-2s-complement-binary-string
+                binary += f'{int(input) & ((1 << 16) - 1):016b}' if numberValidity(input) else error(input, line_num, "invalid number")
             elif input_type == Inputs.LN:
                 binary += f'{int(input[2:]):016b}' if lineValidity(input) else error(input, line_num, "invalid line number")
             elif input_type == Inputs.RM:
@@ -249,4 +254,3 @@ if __name__ == "__main__":
             print("\nTest Results: Assembler working properly 😊")
         else:
             print("\nTest Results: Assembler working improperly 🫠")
-
