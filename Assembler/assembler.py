@@ -1,124 +1,31 @@
-from enum import Enum
 import argparse
+from definitions import *
 
 # guide for my custom assembly language: bitly/nra2130Assembly101
 
-# input kinds
-class Inputs(Enum):
-    RG = "rg" # register address
-    RM = "rm" # ram address
-    LN = "ln" # line number (for jumps)
-    INTGR = "intgr" # integer literal
-    BTWSE = "btwse" # comparison bitwise operation (for conditional jumps)
-
-# operation kinds
-class Operations(Enum):
-    ADD = "_add_" # addition
-    SUB = "_sub_" # subtraction
-    GRT = "_grt_" # greater than (comparison)
-    EQL = "_eql_" # equals to (comparison)
-    JMP = "_jmp_" # jump
-    CJP = "_cjp_" # conditional jump
-    RST = "_rst_" # register set
-    RRD = "_rrd_" # register read
-    RCL = "_rcl_" # clear registers
-    AND = "_and_" # bitwise and
-    BOR = "_bor_" # bitwise or
-    XOR = "_xor_" # bitwise xor
-    NOT = "_not_" # bitwise not
-    RLD = "_rld_" # register load (write from ram to register)
-    RMS = "_rms_" # ram set (write to ram)
-    INV = "_inv_" # bitwise invert (I have no idea how this is different from NOT)
-
-# inclusive input bounds
-RG_ADR_MIN = 0
-RG_ADR_MAX = 2**4 - 1
-RM_ADR_MIN = 0
-RM_ADR_MAX = 2**8 - 1
-LN_MIN = 0
-LN_MAX = 2**16 - 1
-INTGR_MIN = -(2**15)
-INTGR_MAX = 2**15 - 1
-
-# binary representations of each assembly operation
-casm_to_bnry = {
-    Operations.ADD: "0000",
-    Operations.SUB: "0001",
-    Operations.GRT: "0010",
-    Operations.EQL: "0011",
-    Operations.JMP: "0100",
-    Operations.CJP: "1111",
-    Operations.RST: "0101",
-    Operations.RRD: "0110",
-    Operations.RCL: "0111",
-    Operations.AND: "1000",
-    Operations.BOR: "1001",
-    Operations.XOR: "1010",
-    Operations.NOT: "1011",
-    Operations.RLD: "1100",
-    Operations.RMS: "1101",
-    Operations.INV: "1110"
-}
-
-# inputs for each command
-casm_to_input = {
-    Operations.ADD: [Inputs.RG, Inputs.RG, Inputs.RG],
-    Operations.SUB: [Inputs.RG, Inputs.RG, Inputs.RG],
-    Operations.GRT: [Inputs.RG, Inputs.RG, Inputs.RG],
-    Operations.EQL: [Inputs.RG, Inputs.RG, Inputs.RG],
-    Operations.JMP: [Inputs.LN],
-    Operations.CJP: [Inputs.LN, Inputs.RG, Inputs.RG, Inputs.BTWSE],
-    Operations.RST: [Inputs.RG, Inputs.INTGR],
-    Operations.RRD: [Inputs.RG, Inputs.RG],
-    Operations.RCL: [],
-    Operations.AND: [Inputs.RG, Inputs.RG, Inputs.RG],
-    Operations.BOR: [Inputs.RG, Inputs.RG, Inputs.RG],
-    Operations.XOR: [Inputs.RG, Inputs.RG, Inputs.RG],
-    Operations.NOT: [Inputs.RG, Inputs.RG],
-    Operations.RLD: [Inputs.RM, Inputs.RG],
-    Operations.RMS: [Inputs.RM, Inputs.RG],
-    Operations.INV: [Inputs.RG, Inputs.RG]
-}
-
-btwse_cmps_ops = [Operations.AND, Operations.BOR, Operations.XOR] # comparison bitwise operations, can be used in conditional jumps
-
 errors = [] # list of errors that occurred during the assembly process
 
-def checkAddress(address: str, address_type: Inputs) -> bool:
-    """Check if the address is a valid register or ram address."""
+def check_address(address: str, address_type: Input) -> bool:
+    """Check if the inputted address is a valid register, ram address, or line number (to jump to)."""
+    if not address[:2] == address_type:
+        return False
+    
     try:
-        val = int(''.join(address[2:])) # first two characters are "rg" or "rm"
+        val = int(address[2:])
     except ValueError:
         return False
 
-    kind = ''.join(address[:2])
+    return address_type.within_bounds(val)
 
-    if address_type == Inputs.RG:
-        return kind == Inputs.RG.value and (RG_ADR_MIN <= val and val <= RG_ADR_MAX)
-    elif address_type == Inputs.RM:
-        return kind == Inputs.RM.value and (RM_ADR_MIN <= val and val <= RM_ADR_MAX)
-    else:
-        return False
-
-def lineValidity(line: str) -> bool:
-    """Check if the line number is a valid line number to be jumped to."""
-    if not line[:2] == Inputs.LN.value:
-        return False
-    try:
-        val = int(line[2:])
-    except ValueError:
-        return False
-    return val >= LN_MIN and val <= LN_MAX
-
-def numberValidity(number: str) -> bool:
-    """Check if the number is a valid integer literal."""
+def check_integer(number: str) -> bool:
+    """Check if the inputted number is a valid integer literal."""
     try:
         val = int(number)
     except ValueError:
         return False
-    return val >= INTGR_MIN and val <= INTGR_MAX
+    return Input.INTGR.within_bounds(val)
 
-def error(input: Operations | str, line_num: int, reason = "None") -> str:
+def error(input: Operation | str, line_num: int, reason = "None") -> str:
     """Error message creater for invalid operations."""
     errors.append(f"Line #{line_num} is invalid, because '{input}' is invalid. Specified reason: {reason}.")
     return "ERROR"
@@ -191,15 +98,14 @@ if __name__ == "__main__":
             continue
 
         try:
-            operation = Operations(operation)
+            operation = Operation(operation)
         except ValueError:
             assembled_code.append(error(operation, line_num, "invalid operation"))
             continue
 
-        binary = casm_to_bnry[operation]
+        binary = operation.bnry
 
-        expected_inputs = casm_to_input[operation]
-        expctd_amnt = len(expected_inputs)
+        expctd_amnt = len(operation.inputs)
         actl_amnt = len(inputs)
         if actl_amnt > expctd_amnt or actl_amnt < expctd_amnt:
             assembled_code.append(input_amount_error(line_num, expctd_amnt, actl_amnt))
@@ -207,22 +113,22 @@ if __name__ == "__main__":
         index = 0
         # the following for loop checks the validity of the inputs depending on the operation
         for input in inputs:
-            input_type = expected_inputs[index]
-            if input_type == Inputs.RG:
-                binary += f'{int(input[2:]):04b}' if checkAddress(input, Inputs.RG) else error(input, line_num, "invalid register address")
-            elif input_type == Inputs.INTGR:
+            input_type = operation.inputs[index]
+            if input_type == Input.RG:
+                binary += f'{int(input[2:]):04b}' if check_address(input, Input.RG) else error(input, line_num, "invalid register address")
+            elif input_type == Input.INTGR:
                 # https://stackoverflow.com/questions/63274885/converting-an-integer-to-signed-2s-complement-binary-string
-                binary += f'{int(input) & ((1 << 16) - 1):016b}' if numberValidity(input) else error(input, line_num, "invalid number")
-            elif input_type == Inputs.LN:
-                binary += f'{int(input[2:]):016b}' if lineValidity(input) else error(input, line_num, "invalid line number")
-            elif input_type == Inputs.RM:
-                binary += f'{int(input[2:]):08b}' if checkAddress(input, Inputs.RM) else error(input, line_num, "invalid ram address")
-            elif input_type == Inputs.BTWSE:
+                binary += f'{int(input) & ((1 << 16) - 1):016b}' if check_integer(input) else error(input, line_num, "invalid number")
+            elif input_type == Input.LN:
+                binary += f'{int(input[2:]):016b}' if check_address(input, Input.LN) else error(input, line_num, "invalid line number")
+            elif input_type == Input.RM:
+                binary += f'{int(input[2:]):08b}' if check_address(input, Input.RM) else error(input, line_num, "invalid ram address")
+            elif input_type == Input.BTWSE:
                 try:
-                    input = Operations(input)
-                    if input not in btwse_cmps_ops:
+                    input = Operation(input)
+                    if not input.is_btwse_cmps_op():
                         raise ValueError
-                    binary += casm_to_bnry[input]
+                    binary += input.bnry
                 except ValueError:
                     binary += error(input, line_num, "invalid bitwise operation")
 
