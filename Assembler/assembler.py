@@ -26,12 +26,12 @@ def check_integer(number: str) -> bool:
     return Input.INTGR.within_bounds(val)
 
 def error(input: Operation | str, line_num: int, reason = "None") -> str:
-    """Error message creater for invalid operations."""
+    """Generic error message creator for invalid operations."""
     errors.append(f"Line #{line_num} is invalid, because '{input}' is invalid. Specified reason: {reason}.")
     return "ERROR"
 
 def input_amount_error(line_num: int, expct_amnt: int, actl_amnt: int) -> str:
-    """Error message creater for an operation with too many or too few inputs."""
+    """Specialized error message creator for an operation with too many or too few inputs."""
     # this looks ugly because I wanted the pluralization to be correct
     errors.append(f"Line #{line_num} is invalid, because there {'was' if actl_amnt == 1 else 'were'} {actl_amnt} input" \
         f"{'' if actl_amnt == 1 else 's'}, but {expct_amnt} {'was' if expct_amnt == 1 else 'were'} expected.")

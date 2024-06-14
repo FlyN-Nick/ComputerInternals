@@ -21,9 +21,9 @@ class Input(StrEnum):
     value: str
     """String representation of the input type, used for validation"""
     min_: int
-    """Minimized value, inclusive"""
+    """Minimum value, inclusive"""
     max_: int
-    """Maximized value, exclusive"""
+    """Maximum value, exclusive"""
     
     def __new__(cls, value: str, min_: int, max_: int) -> "Input":
         obj = str.__new__(cls, value)
@@ -40,7 +40,7 @@ class Input(StrEnum):
 class Operation(StrEnum):
     """Assembly operations, their binary representations, and required inputs."""
     
-    ADD = ("_add_", "0000", [Input.RG, Input.RG, Input.RG]) # addition
+    ADD = ("_add_", "0000", [Input.RG, Input.RG, Input.RG])
     """Addition"""
     SUB = ("_sub_", "0001", [Input.RG, Input.RG, Input.RG])
     """Subtraction"""
