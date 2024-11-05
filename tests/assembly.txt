@@ -20,7 +20,7 @@ _rst_ rg8 0                # rg8 = 0
 _xor_ rg8 rg15 rg15        # rg15 = rg8 ^ rg15 = 0 ^ 1 = 1
 _sub_ rg15 rg15 rg15       # rg15 = rg15 - rg15 = 1 - 1 = 0
 _not_ rg15 rg15            # rg15 = ~rg15 = ~0 = 1 (2's complement)
-_inv_ rg15 rg15            # rg15 = -rg15 = -1
+_inv_ rg15 rg15            # rg15 = -rg15 = -1 WHY DOES IT BECOME FFFF but them magically become 1???
 _rrd_ rg15 rg14            # rg14 = rg15 = -1
 _rms_ rm0 rg14             # rm0 = rg14
 _rcl_                      # clear registers
