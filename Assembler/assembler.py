@@ -1,4 +1,4 @@
-from definitions import *
+from definitions import Input, Operation
 import argparse
 
 # guide for my custom assembly language: bit.ly/nra2130Assembly101
@@ -151,7 +151,7 @@ if __name__ == "__main__":
         padding = 32 - len(binary)
         binary += "0"*padding
 
-        if not "ERROR" in binary:
+        if "ERROR" not in binary:
             if not testing:
                 assembled_code.append(hex(int(binary, 2)))
             else:

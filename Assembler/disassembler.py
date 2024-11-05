@@ -1,10 +1,10 @@
 
-from definitions import *
+from definitions import Input, Operation
 import argparse
 
-def hex_to_bin(hex: str) -> str:
+def hex_to_bin(hx: str) -> str:
     """Convert a hexadecimal string (8 hex digits) to a 32-bit binary string."""
-    return f"{int(hex, 16):032b}"
+    return f"{int(hx, 16):032b}"
 
 def decode_instruction(binary_instruction: str) -> str:
     """Decodes a single 32-bit binary instruction into assembly language."""
@@ -73,6 +73,7 @@ def disassemble(hex_instructions: list[str]) -> list[str]:
         assembly_line = decode_instruction(binary_instruction)
         assembly_code.append(assembly_line)
     return assembly_code
+
 
 parser = argparse.ArgumentParser(description="Disassemble binary instructions into assembly language.")
 parser.add_argument("input", type=str, help="Input file containing hexadecimal instructions.")
