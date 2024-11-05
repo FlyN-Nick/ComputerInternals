@@ -1,4 +1,4 @@
-# this is the original assembler script that I wrote in 9th grade
+# this is the original assembler that I wrote in 9th grade with only half a year of Python experience.
 
 import numpy
 

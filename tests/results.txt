@@ -1,4 +1,4 @@
-Ram 0 & 1 expected value 1 (decimal). 
+RAM 0 & 1 expected value 1 (decimal). 
 
 This tests makes use of all my CPU's commands. 
 

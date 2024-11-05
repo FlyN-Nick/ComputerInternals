@@ -1,3 +1,5 @@
+# An initial attempt at refactoring the over four years old assembler code, circa March 2024.
+
 from enum import Enum
 import argparse
 

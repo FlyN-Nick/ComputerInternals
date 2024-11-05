@@ -1,0 +1,27 @@
+_rst_ rg0 42               # rg0 = 42
+_rst_ rg1 69               # rg1 = 69
+_rst_ rg2 219              # rg2 = 219
+_add_ rg0 rg2 rg3          # rg3 = rg0 + rg2 = 42 + 219 = 261
+_sub_ rg3 rg1 rg4          # rg4 = rg3 - rg1 = 261 - 69 = 192
+_rst_ rg5 192              # rg5 = 192
+_eql_ rg4 rg5 rg6          # rg6 = rg4 == rg5 = 192 == 192 = 1
+_rst_ rg7 0                # rg7 = 0
+_grt_ rg6 rg7 rg8          # rg8 = rg6 > rg7 = 1 > 0 = 1
+_rms_ rm1 rg8              # rm1 = rg8
+_rst_ rg9 1                # rg9 = 1
+_add_ rg8 rg9 rg10         # rg10 = rg8 + rg9 = 1 + 1 = 2
+_cjp_ ln14 rg10 rg9 _grt_  # if rg10 > rg9 then jump to line 14
+_rcl_                      # jumped over
+_cjp_ ln0 rg10 rg9 _eql_   # rg10 != rg9 so passed
+_rld_ rm1 rg15             # rg15 = rm1 = 1
+_and_ rg15 rg8 rg15        # rg15 = rg15 & rg8 = 1 & 1 = 1
+_bor_ rg15 rg8 rg15        # rg15 = rg15 | rg8 = 1 | 1 = 1
+_rst_ rg8 0                # rg8 = 0
+_xor_ rg8 rg15 rg15        # rg15 = rg8 ^ rg15 = 0 ^ 1 = 1
+_sub_ rg15 rg15 rg15       # rg15 = rg15 - rg15 = 1 - 1 = 0
+_not_ rg15 rg15            # rg15 = ~rg15 = ~0 = 1 (2's complement)
+_inv_ rg15 rg15            # rg15 = -rg15 = -1 WHY DOES IT BECOME FFFF but them magically become 1???
+_rrd_ rg15 rg14            # rg14 = rg15 = -1
+_rms_ rm0 rg14             # rm0 = rg14
+_rcl_                      # clear registers
+_jmp_ ln26                 # jump to line 26, AKA stay here forever
