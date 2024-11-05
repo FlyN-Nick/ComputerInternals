@@ -33,7 +33,7 @@ def error(input: Operation | str, line_num: int, reason = "none") -> str:
 def input_amount_error(line_num: int, expct_amnt: int, actl_amnt: int) -> str:
     """Specialized error message creator for an operation with too many or too few inputs."""
     # this looks ugly because I wanted the pluralization to be correct
-    errors.append(f"Line #{line_num} is invalid, because there {'was' if actl_amnt == 1 else 'were'} {actl_amnt} input" \
+    errors.append(f"Line #{line_num} is invalid, because there {'was' if actl_amnt == 1 else 'were'} {actl_amnt} input"
         f"{'' if actl_amnt == 1 else 's'}, but {expct_amnt} {'was' if expct_amnt == 1 else 'were'} expected.")
     return "ERROR"
 
