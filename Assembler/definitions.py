@@ -50,7 +50,7 @@ class Operation(StrEnum):
     _value_: str         # assembly representation of operation
     bnry: str            # binary representation of operation
     inputs: list[Input]  # inputs required for operation
-    
+        
     def __new__(cls, value: str, bnry: str, inputs: list[Input]) -> "Operation":
         obj = str.__new__(cls, value)
         obj._value_ = value
@@ -58,6 +58,7 @@ class Operation(StrEnum):
         obj.inputs = inputs
         return obj
     
-    def is_btwse_cmps_op(self) -> bool:
-        """Check if the operation is a bitwise comparison operation, which can be used for conditional jumps."""
-        return self in [Operation.AND, Operation.BOR, Operation.XOR]
+    @staticmethod
+    def bitwise_cmps() -> list["Operation"]:
+        """List of valid bitwise comparison operation that can be used for conditional jumps."""
+        return [Operation.EQL, Operation.GRT]

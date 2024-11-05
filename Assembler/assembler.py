@@ -1,5 +1,5 @@
-import argparse
 from definitions import *
+import argparse
 
 # guide for my custom assembly language: bit.ly/nra2130Assembly101
 
@@ -46,7 +46,7 @@ test_cases = {
     "_grt_ rg7 rg8 rg9": "VALUE",
     "_eql_ rg10 rg11 rg12": "VALUE",
     "_jmp_ ln0": "VALUE",
-    "_cjp_ ln65535 rg13 rg14 _and_": "VALUE",
+    "_cjp_ ln65535 rg13 rg14 _eql_": "VALUE",
     "_rst_ rg15 12345": "VALUE",
     "_rrd_ rg14 rg13": "VALUE",
     "_rcl_": "VALUE",
@@ -59,7 +59,7 @@ test_cases = {
     "_inv_ rg0 rg0": "VALUE",
     "_sub_": "ERROR",                      # missing three inputs
     "_jmp_ ln65536": "ERROR",              # too large of a line number
-    "_cjp_ ln0 rg13 rg14 _add_": "ERROR",  # invalid comparison operation for conditional jump
+    "_cjp_ ln0 rg13 rg14 _and_": "ERROR",  # invalid comparison operation for conditional jump
     "_sub_ rm100 rg5 rg4": "ERROR",        # wrong type of input, should be register not RAM address
     "_grt_ rg5 rg6": "ERROR",              # missing one input
     "_jmp_ ln": "ERROR",                   # missing an integer immediate after ln (invalid input)
@@ -68,7 +68,7 @@ test_cases = {
     "_and_ rg5 rg5 gr4": "ERROR",          # wrong type of input (invalid input prefix)
     "_xor_ rg5 rg4 rg16": "ERROR",         # too large of a register address
     "_not_ rg5 rg4 rg3": "ERROR",          # too many inputs
-    "_nat_ rg5 rg4": "VALUE",              # invalid operation
+    "_nat_ rg5 rg4": "ERROR",              # invalid operation
     "_rms_ rm256 rg15": "ERROR",           # too large of a RAM address
 }
 
@@ -81,6 +81,7 @@ args = vars(parser.parse_args())
 if __name__ == "__main__":
     testing = args["test"]
     input_file = args["input"]
+    output_file = args["output"]
     assembly_code = []
     if testing:
         print("Running test cases...")
@@ -111,6 +112,12 @@ if __name__ == "__main__":
             continue
 
         binary = operation.bnry
+        
+        # remove comments
+        for i, input in enumerate(inputs):
+            if input[0] == "#":
+                inputs = inputs[:i]
+                break
 
         expctd_amnt = len(operation.inputs)
         actl_amnt = len(inputs)
@@ -133,7 +140,7 @@ if __name__ == "__main__":
             elif input_type == Input.BTWSE:
                 try:
                     input = Operation(input) # this may throw a ValueError
-                    if not input.is_btwse_cmps_op():
+                    if input not in input.bitwise_cmps():
                         raise ValueError
                     binary += input.bnry
                 except ValueError:
@@ -158,16 +165,22 @@ if __name__ == "__main__":
         print("\nOutput:\n" + '\n'.join(assembled_code))
 
     if input_file:
-        with open(args["output"], "w+") as output:
-            for code in assembled_code:
-                output.write(f"{code}\n")
+        with open(output_file, "w+") as output:
+            output.write("v2.0 raw\n")
+            for i, code in enumerate(assembled_code):
+                if i == 0:
+                    output.write(f"{code[2:]}")
+                elif i % 8 == 0:
+                    output.write(f"\n{code[2:]}")
+                else:
+                    output.write(f" {code[2:]}")
 
     if testing:
         expected_array = list(test_cases.values())
         if expected_array == assembled_code:
             print("\nTest Results: Assembler working properly 😊")
         else:
-            for i, (line, expected, actual) in enumerate(zip(line, expected_array, assembled_code)):
+            for i, (line, expected, actual) in enumerate(zip(assembly_code, expected_array, assembled_code)):
                 if expected != actual:
                     print(f"Failed case #{i}: {line}")
             print("\nTest Results: Assembler working improperly 🫠")
